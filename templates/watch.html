@@ -1,0 +1,19 @@
+{%  extends "layout.html" %}
+
+{% block head %}
+    <style>
+        body {
+            background-color: #0f0f0f;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div>
+        <video controls>
+            <source src="/stream/{{video_path}}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <h1 class="secondary-heading">{{video_name}}</h1>
+    </div>
+{% endblock %}
