@@ -42,7 +42,7 @@ body {
     margin: 20px;
 }
 
-.movie {
+.dir {
     display: flex;
     flex-direction: column;
     background-color: #1C2128;
@@ -93,7 +93,7 @@ video {
 }
 
 @media screen and (max-width: 768px) {
-    .movie {
+    .dir {
         width: 85vw;
     }
 }

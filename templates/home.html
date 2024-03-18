@@ -2,14 +2,14 @@
 
 {% block body %}
     <div class="container">        
-        <h1 class="main-heading">Movie List</h1>
-        <div class="movie-container">
-            {% for movie, episodes in movies.items %}
-                <div class="movie">
-                    <h2 class="secondary-heading">{{ movie }}</h2>
+        <h1 class="main-heading">Dir List</h1>
+        <div class="dir-container">
+            {% for dir, episodes in directories.items %}
+                <div class="dir">
+                    <h2 class="secondary-heading">{{ dir }}</h2>
                     <div class="episode-list">
                         {% for episode in episodes %}
-                            <a class="episode-link" href="/watch/{{ movie }}/{{ episode }}">{{ episode }}</a>
+                            <a class="episode-link" href="/watch/{{ dir }}/{{ episode }}">{{ episode }}</a>
                         {% endfor %}
                     </div>
                 </div>
