@@ -2,7 +2,7 @@ from django.http import HttpResponse, StreamingHttpResponse, Http404
 from django.shortcuts import render
 import os, re
 
-videos = "/mnt/USB"
+sources = ["/source1/", "/source2/"]
 
 def watch(request, path):
     return render(request, "watch.html", {
@@ -10,26 +10,52 @@ def watch(request, path):
         "video_name": path.split("/")[-1].strip(".mp4")}
     )
 
+def list_sources():
+    files = []
+    for source in sources:
+        for file in os.listdir(source):
+            files.append(file)
+    return files
+
+def list_item(path):
+    if os.path.exists(path):
+        return os.listdir(path)
+    return []
+
+def get_source(item):
+    for source in sources:
+        if os.path.exists(os.path.join(source, item)):
+            return os.path.join(source, item).__str__()
+    return None
+
+def is_directory(path):
+    for source in sources:
+        if os.path.isdir(os.path.join(source, path)):
+            return True
+    return False
+
 def home(request):
     if request.method != "GET":
         return HttpResponse("Nope", status=403)
+    
     if request.method == "GET":
         if request.GET.get("token") is None:
             return HttpResponse("Nope", status=403)
-        if request.GET["token"] == "secret message here":
-            movies = {key:[] for key in os.listdir(videos) if os.path.isdir(videos + "/" + key)}
+        
+        if request.GET["token"] == "RXBpY0hhY2tlcnM6R2VvcmdlJk5pY2s=":
+            directories = {key:[] for key in list_sources() if is_directory(key)}
             
-            for key in movies:
-                for file in sorted(os.listdir(videos + "/" + key)):
+            for key in directories:
+                for file in sorted(list_item(get_source(key))):
                     if file.endswith(".mp4"):
-                        movies[key].append(file)
+                        directories[key].append(file)
             
-            return render(request, "home.html", {"movies": movies})
+            return render(request, "home.html", {"directories": directories})
         else:
             return HttpResponse("Nope", status=403)
 
 def stream(request, path):
-    file_path = os.path.join(videos, path)
+    file_path = os.path.join(get_source(path))
     if not os.path.exists(file_path):
         raise Http404("Video not found!")
 
