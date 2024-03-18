@@ -4,12 +4,12 @@
     <div class="container">        
         <h1 class="main-heading">Dir List</h1>
         <div class="dir-container">
-            {% for dir, episodes in directories.items %}
+            {% for dir, items in directories.items %}
                 <div class="dir">
                     <h2 class="secondary-heading">{{ dir }}</h2>
-                    <div class="episode-list">
-                        {% for episode in episodes %}
-                            <a class="episode-link" href="/watch/{{ dir }}/{{ episode }}">{{ episode }}</a>
+                    <div class="item-list">
+                        {% for item in items %}
+                            <a class="item-link" href="/watch/{{ dir }}/{{ item }}">{{ item }}</a>
                         {% endfor %}
                     </div>
                 </div>
