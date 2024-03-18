@@ -2,14 +2,14 @@
 
 {% block body %}
     <div class="container">        
-        <h1 class="main-heading">Dir List</h1>
+        <h1 class="main-heading">{{ title }}</h1>
         <div class="dir-container">
             {% for dir, items in directories.items %}
                 <div class="dir">
                     <h2 class="secondary-heading">{{ dir }}</h2>
                     <div class="item-list">
                         {% for item in items %}
-                            <a class="item-link" href="/watch/{{ dir }}/{{ item }}">{{ item }}</a>
+                            <a class="item-link" href="/open/{{ dir }}/{{ item }}">{{ item }}</a>
                         {% endfor %}
                     </div>
                 </div>

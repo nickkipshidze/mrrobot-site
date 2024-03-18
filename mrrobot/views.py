@@ -1,4 +1,4 @@
-from django.http import HttpResponse, StreamingHttpResponse, Http404
+from django.http import HttpResponse, StreamingHttpResponse, Http404, HttpResponseRedirect, HttpResponseNotFound
 from django.shortcuts import render
 import os, re
 
@@ -23,15 +23,25 @@ def list_item(path):
     return []
 
 def get_source(item):
+    if os.path.exists(item):
+        return item
+    
     for source in sources:
         if os.path.exists(os.path.join(source, item)):
             return os.path.join(source, item).__str__()
     return None
 
 def is_directory(path):
+    if path == None:
+        return False
+    
+    if os.path.isdir(path):
+        return True
+    
     for source in sources:
         if os.path.isdir(os.path.join(source, path)):
             return True
+        
     return False
 
 def home(request):
@@ -47,15 +57,46 @@ def home(request):
             
             for key in directories:
                 for file in sorted(list_item(get_source(key))):
-                    if file.endswith(".mp4"):
-                        directories[key].append(file)
+                    directories[key].append(file)
             
-            return render(request, "home.html", {"directories": directories})
+            return render(request, "home.html", {
+                "title": "Directory Listing",
+                "directories": directories
+            })
         else:
             return HttpResponse("Nope", status=403)
 
+def openitem(request, path):
+    file_path = get_source(path)
+    
+    if is_directory(file_path):
+        directories = {path: list_item(file_path)} 
+        
+        return render(request, "home.html", {
+            "title": f"{path} Listing",
+            "directories": directories,
+            "path": path
+        })
+        
+    elif file_path.endswith("mp4"):
+        return HttpResponseRedirect(f"/watch/{path}")
+    
+    else:
+        try:
+            with open(file_path, "r") as file:
+                file_data = file.read()
+
+            response = HttpResponse(file_data)
+            response["Content-Disposition"] = f"attachment; filename=\"{path}\""
+
+        except IOError:
+            response = HttpResponseNotFound("<h1>File does not exist</h1>")
+
+        return response
+
 def stream(request, path):
     file_path = os.path.join(get_source(path))
+    
     if not os.path.exists(file_path):
         raise Http404("Video not found!")
 
@@ -84,12 +125,12 @@ def stream(request, path):
     return resp
 
 def file_iterator(file_path, start, end, chunk_size=8192):
-    with open(file_path, "rb") as f:
-        f.seek(start)
+    with open(file_path, "rb") as file:
+        file.seek(start)
         remaining = end - start + 1
         while remaining > 0:
             chunk_length = min(chunk_size, remaining)
-            chunk = f.read(chunk_length)
+            chunk = file.read(chunk_length)
             if not chunk:
                 break
             yield chunk
