@@ -13,13 +13,13 @@ def watch(request, path):
 def list_sources():
     files = []
     for source in sources:
-        for file in os.listdir(source):
+        for file in sorted(os.listdir(source)):
             files.append(file)
     return files
 
 def list_item(path):
     if os.path.exists(path):
-        return os.listdir(path)
+        return sorted(os.listdir(path))
     return []
 
 def get_source(item):
