@@ -1,6 +1,6 @@
-from django.http import HttpResponse, StreamingHttpResponse, Http404, HttpResponseRedirect, HttpResponseNotFound
+from django.http import HttpResponse, FileResponse, StreamingHttpResponse, Http404, HttpResponseRedirect, HttpResponseNotFound
 from django.shortcuts import render
-import os, re
+import os, re, mimetypes
 
 sources = ["/source1/", "/source2/"]
 
@@ -82,17 +82,19 @@ def openitem(request, path):
         return HttpResponseRedirect(f"/watch/{path}")
     
     else:
+        if not os.path.exists(file_path):
+            return HttpResponseNotFound("<h1>File does not exist</h1>")
+        
+        content_type, _ = mimetypes.guess_type(file_path)
+        if content_type is None:
+            content_type = "application/octet-stream"
+        
         try:
-            with open(file_path, "r") as file:
-                file_data = file.read()
-
-            response = HttpResponse(file_data)
-            response["Content-Disposition"] = f"attachment; filename=\"{path}\""
-
+            response = FileResponse(open(file_path, "rb"), content_type=content_type)
+            response["Content-Disposition"] = f"attachment; filename=\"{os.path.basename(path)}\""
+            return response
         except IOError:
-            response = HttpResponseNotFound("<h1>File does not exist</h1>")
-
-        return response
+            raise Http404("File does not exist")
 
 def stream(request, path):
     file_path = os.path.join(get_source(path))
