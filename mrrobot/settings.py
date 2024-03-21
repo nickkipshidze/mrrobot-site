@@ -2,6 +2,8 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SOURCES = ["/source1/", "/source2/"]
+
 SECRET_KEY = "django-insecure-v!do$^l1@o#nmk*v8ybqj-iv1&8q^pdh39ari=)hq&y%we(@)r"
 
 DEBUG = True
