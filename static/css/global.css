@@ -49,8 +49,8 @@ body {
     border: 2px solid #373E47;
     border-radius: 7px;
     margin: 20px;
-    width: 50vw;
-    max-height: 400px;
+    width: 70vw;
+    max-height: 60vh;
 }
 
 .secondary-heading {
@@ -76,7 +76,7 @@ body {
 .item-link {
     border: 1px solid #373E47;
     border-radius: 7px;
-    text-align: center;
+    text-align: left;
     transition: all 0.3s;
     padding: 1rem;
     margin: auto 1.5rem;
@@ -93,7 +93,20 @@ video {
 }
 
 @media screen and (max-width: 768px) {
-    .dir {
-        width: 85vw;
+    body {
+		overflow-x: hidden;
+	}
+
+	.item-link {
+		text-align: center;
+	}
+
+	.dir {
+        width: 100vw;
+        margin: 0;
+        border: none;
+        border-radius: 0;
+        border-bottom: 2px solid #373E47;
+        max-height: 60vh;
     }
 }
