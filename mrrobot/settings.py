@@ -4,6 +4,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SOURCES = ["/source1/", "/source2/"]
 
+EXTS_MEDIA = (".mp4", ".mp3", ".wav")
+EXTS_IMAGES = (".jpg", ".jpeg", ".jfif", ".pjpeg", ".pjp", ".gif", ".png", ".svg")
+
 SECRET_KEY = "django-insecure-v!do$^l1@o#nmk*v8ybqj-iv1&8q^pdh39ari=)hq&y%we(@)r"
 
 DEBUG = True
