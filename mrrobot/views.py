@@ -2,7 +2,8 @@ from django.http import HttpResponse, FileResponse, StreamingHttpResponse, HttpR
 from django.shortcuts import render
 import os, re, mimetypes
 
-from .utils import list_sources, list_item, get_source, is_directory
+from . import settings
+from .utils import list_sources, list_item, get_source, is_directory, is_binay_file
 
 def home(request):
     if request.method != "GET":
@@ -41,13 +42,13 @@ def openitem(request, path):
     elif "save" in request.GET and request.GET["save"] == "true":
         return download(request, full_path)
         
-    elif full_path.endswith((".mp4", ".mp3", ".wav")):
+    elif full_path.endswith(settings.EXTS_MEDIA):
         return HttpResponseRedirect(f"/watch/{path}")
     
-    elif full_path.endswith((".jpg", ".jpeg", ".jfif", ".pjpeg", ".pjp", ".gif", ".png", ".svg")):
+    elif full_path.endswith(settings.EXTS_IMAGES):
         return preview_image(request, path)
 
-    elif full_path.endswith((".txt", ".py", ".js", ".css", ".cpp", ".c", ".md")):
+    elif not is_binay_file(full_path):
         return preview_text(request, full_path)
     
     else:
