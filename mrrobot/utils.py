@@ -11,16 +11,19 @@ def sort(items):
     items.sort(key=natural_keys)
     return items
 
+def filter_items(items):
+    return [item for item in items if not (is_directory(get_source(item)) and ".mrignore" in os.listdir(get_source(item)))]
+
 def list_sources():
     files = []
     for source in settings.SOURCES:
         for file in sort(os.listdir(source)):
             files.append(file)
-    return files
+    return filter_items(files)
 
 def list_item(path):
     if os.path.exists(path):
-        return sort(os.listdir(path))
+        return sort(filter_items(os.listdir(path)))
     return []
 
 def get_source(item):
