@@ -4,6 +4,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SOURCES = ["/source1/", "/source2/"]
 
+TOKEN = "<token>"
+
 EXTS_MEDIA = (".mp4", ".mp3", ".wav")
 EXTS_IMAGES = (".jpg", ".jpeg", ".jfif", ".pjpeg", ".pjp", ".gif", ".png", ".svg")
 

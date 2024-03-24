@@ -13,7 +13,7 @@ def home(request):
         if request.GET.get("token") is None:
             return HttpResponse("Nope", status=403)
         
-        if request.GET["token"] == "RXBpY0hhY2tlcnM6R2VvcmdlJk5pY2s=":
+        if request.GET["token"] == settings.TOKEN:
             directories = {key:[] for key in list_sources() if is_directory(key)}
             
             for key in directories:
