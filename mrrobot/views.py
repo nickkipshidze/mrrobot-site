@@ -10,22 +10,16 @@ def home(request):
         return HttpResponse("Nope", status=403)
     
     if request.method == "GET":
-        if request.GET.get("token") is None:
-            return HttpResponse("Nope", status=403)
+        directories = {key:[] for key in list_sources() if is_directory(key)}
         
-        if request.GET["token"] == settings.TOKEN:
-            directories = {key:[] for key in list_sources() if is_directory(key)}
-            
-            for key in directories:
-                for file in sorted(list_item(get_source(key))):
-                    directories[key].append(file)
-            
-            return render(request, "listing.html", {
-                "title": "Directory Listing",
-                "directories": directories
-            })
-        else:
-            return HttpResponse("Nope", status=403)
+        for key in directories:
+            for file in sorted(list_item(get_source(key))):
+                directories[key].append(file)
+        
+        return render(request, "listing.html", {
+            "title": "Directory Listing",
+            "directories": directories
+        })
 
 def openitem(request, path):
     full_path = get_source(path)
