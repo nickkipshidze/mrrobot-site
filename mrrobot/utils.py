@@ -55,4 +55,9 @@ def is_binay_file(path):
     if is_binary_string(open(path, "rb").read(1024)):
         return True
     else:
-        return False
+        try:
+            with open(path, "r") as file:
+                file.read()
+            return False
+        except UnicodeDecodeError:
+            return True
