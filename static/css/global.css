@@ -1,13 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Sono");
-
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-}
-
-html {
-    font-size: 62.5%;
 }
 
 ::-webkit-scrollbar {
@@ -15,7 +8,7 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-    background-color: #2D333B;
+    background-color: #272b31;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -24,65 +17,126 @@ html {
 }
 
 body {
-    background-color: #2D333B;
-    color: white;
-    font-family: "Sono";
-    font-size: 1.6rem;
+    background-color: #2b343f;
+    height: 100vh;
+    overflow-x: hidden;
 }
 
-.container {
-    min-height: 100vh;
+body > div {
+    padding-top: 60px;
+    padding-bottom: 10px;
+}
+
+@font-face {
+    font-family: Kodchasan;
+    src: local("Kodchasan"),
+         url("../fonts/Kodchasan-Regular.ttf") format("truetype");
+}
+
+h1, h2, h3, h4, h5, h6, p, a {
+    color: #fff;
+    text-decoration: none;
+    font-family: Kodchasan;
+}
+
+.navbar {
+    position: fixed;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
+    background-color: #0d1014;
+    width: calc(100vw - 20px);
+    padding: 10px;
+    z-index: 10;
 }
 
-.main-heading {
-    margin: 20px;
+.navbar > h1 > img {
+    height: 35px;
 }
 
-.dir {
+.navbar > h1 {
     display: flex;
-    flex-direction: column;
-    background-color: #1C2128;
-    border: 2px solid #373E47;
-    border-radius: 7px;
-    margin: 20px;
-    width: 70vw;
-    max-height: 60vh;
+    width: 50vw;
+    align-items: center;
+    gap: 30px;
 }
 
-.secondary-heading {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-    padding: 15px;
-}
-
-.item-list {
+.navbar > div {
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    padding-bottom: 1rem;
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    padding-right: 10px;
 }
 
-.item-link:hover,.item-link:active {
-    background-color: #444C56;
-    transform: translate(10px, 0);
-}
-
-.item-link {
-    border: 1px solid #373E47;
-    border-radius: 7px;
-    text-align: left;
+.btn {
+    display: flex;
+    padding: 10px;
+    border-radius: 5px;
+    align-items: center;
+    justify-content: center;
+    background-color: #165750;
     transition: all 0.3s;
-    padding: 1rem;
-    margin: auto 1.5rem;
-    background-color: #373E47;
-    text-decoration: none;
-    color: #539BF5;
+}
+
+.btn:hover {
+    background-color: #1d887d;
+}
+
+.btn:active {
+    background-color: #25dbc9;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    background-color: #171C22;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    gap: 20px;
+}
+
+.directory {
+    flex-direction: column;
+}
+
+.directory > h1 {
+    border-bottom: #2b343f 4px solid;
+    border-bottom-right-radius: 10px;
+    padding-right: 10px;
+}
+
+.directory > div {
+    display: flex;
+    flex-direction: column;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-left: #2b343f 4px solid;
+    border-bottom-left-radius: 10px;
+}
+
+.directory > div > * {
+    padding-left: 20px;
+    border-bottom: #2b343f 1px solid;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+    overflow: hidden;
+}
+
+.directory > div > *:hover {
+    color: #1d887d;
+    font-weight: 900;
+}
+
+.directory > div > *:active {
+    color: #25dbc9;
+}
+
+.videotitle {
+    padding: 20px;
 }
 
 video {
@@ -93,20 +147,29 @@ video {
 }
 
 @media screen and (max-width: 768px) {
-    body {
-		overflow-x: hidden;
-	}
-
-	.item-link {
-		text-align: center;
-	}
-
-	.dir {
-        width: 100vw;
-        margin: 0;
-        border: none;
-        border-radius: 0;
-        border-bottom: 2px solid #373E47;
-        max-height: 60vh;
+    .navbar {
+        flex-direction: column;
+        gap: 10px;
     }
+
+    .navbar > h1 {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .navbar > div {
+        width: 100%;
+        justify-content: center;
+    }
+
+    body > div {
+        padding-top: 105px;
+    }
+
+    .directory > div {
+        padding-top: 15px;
+        padding-bottom: 15px;
+        border-left: #2b343f 4px solid;
+        border-bottom-left-radius: 10px;
+    }    
 }
