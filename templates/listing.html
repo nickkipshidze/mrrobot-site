@@ -9,23 +9,16 @@
 {% endblock %}
 
 {% block body %}
-    <div class="container">
-        {% if title %}
-            <h1 class="main-heading">{{ title }}</h1>
-        {% else %}
-            <h1 class="main-heading">Source Listing</h1>
-        {% endif %}
-        <div class="dir-container">
-            {% for dir, items in directories.items %}
-                <div class="dir">
-                    <h2 class="secondary-heading">{{ dir }}</h2>
-                    <div class="item-list">
-                        {% for item in items %}
-                            <a class="item-link" href="/open/{{ dir }}/{{ item }}">{{ item }}</a>
-                        {% endfor %}
-                    </div>
+    <div class="content">
+        {% for dir, items in directories.items %}
+            <div class="directory">
+                <h1>{{ dir }}</h1>
+                <div>
+                    {% for item in items %}
+                        <a href="/open/{{ dir }}/{{ item }}">{{ item }}</a>
+                    {% endfor %}
                 </div>
-            {% endfor %}
-        </div>
+            </div>
+        {% endfor %}
     </div>
 {% endblock %}
