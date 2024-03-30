@@ -17,7 +17,6 @@ def home(request):
                 directories[key].append(file)
         
         return render(request, "listing.html", {
-            "title": "Directory Listing",
             "directories": directories
         })
 

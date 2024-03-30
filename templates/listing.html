@@ -1,8 +1,20 @@
 {% extends "layout.html" %}
 
+{% block head %}
+    {% if title %}
+        <title>MrRobotSite | {{ title }}</title>
+    {% else %}
+        <title>MrRobotSite</title>
+    {% endif %}
+{% endblock %}
+
 {% block body %}
-    <div class="container">        
-        <h1 class="main-heading">{{ title }}</h1>
+    <div class="container">
+        {% if title %}
+            <h1 class="main-heading">{{ title }}</h1>
+        {% else %}
+            <h1 class="main-heading">Source Listing</h1>
+        {% endif %}
         <div class="dir-container">
             {% for dir, items in directories.items %}
                 <div class="dir">
