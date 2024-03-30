@@ -1,15 +1,11 @@
 import os, re
 from . import settings
 
-def atoi(text):
-    return int(text) if text.isdigit() else text
-
-def natural_keys(text):
-    return [atoi(c) for c in re.split(r"(\d+)", text)]
+def natsort(s):
+    [int(t) if t.isdigit() else t.lower() for t in re.split("(\d+)", s)] 
 
 def sort(items):
-    items.sort(key=natural_keys)
-    return items
+    return sorted(items, key=natsort)
 
 def filter_items(items):
     return [item for item in items if not (is_directory(get_source(item)) and ".mrignore" in os.listdir(get_source(item)))]
