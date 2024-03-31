@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block head %}
+    <title>MrRobotSite | Database status</title>
+    <link rel="stylesheet" href="{% static 'css/dev.css' %}">
+{% endblock %}
+
+{% block body %}
+    <h1 style="margin: 10px; margin-bottom: 50px;">Database status</h1>
+    <div class="status-data">
+        <label for="partition-count">Mounted partitions in use</label>
+        <label id="partition-count">{{ partitions }}</label>
+    </div>
+    <div class="status-data">
+        <label for="available-space">Available space</label>
+        <label id="available-space">{{ available }} GiB</label>
+    </div>
+    <div class="status-data">
+        <label for="max-capacity">Max capacity</label>
+        <label id="max-capacity">{{ capacity }} GiB</label>
+    </div>
+    <div class="status-data">
+        <label for="percentage-avail">Available space (%)</label>
+        <label id="percentage-avail">{{ percentage }} %</label>
+    </div>
+    <blockquote style="margin-top: 50px; margin-bottom: 50px;">
+        <h2>Dev note</h2>
+        <p>Don't put shit inside the database please. Thank you. - Nick</p>
+    </blockquote>
+    <div class="status-data">
+        <label for="basedir-count">Base directory count</label>
+        <label id="basedir-count">{{ dircount }}</label>
+    </div>
+    <blockquote style="margin-top: 50px;">
+        <h2>Dev note</h2>
+        <p>Its a miracle this server is even running. It has 2 GB of ram and 13 year old CPU. Pls no hack.</p>
+    </blockquote>
+{% endblock %}
