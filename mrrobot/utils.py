@@ -57,3 +57,32 @@ def is_binay_file(path):
             return False
         except UnicodeDecodeError:
             return True
+
+def get_partition_data(filesystem = None, mount = None):
+    # Only works on Linux lol
+    # Why would you even use Windows as a server anyway?
+    
+    columns = ["filesystem", "size", "used", "avail", "use%", "mounted on"]
+    output = os.popen("df", "r").read().split("\n")[1:-1]
+
+    partitions = []
+    
+    for row in output:
+        data = row.split(" ")
+        [data.remove("") for _ in range(data.count(""))]
+        data = dict(zip(columns, data))
+        
+        data["size"] = int(data["size"])
+        data["used"] = int(data["used"])
+        data["avail"] = int(data["avail"])
+        
+        if mount:
+            if data["mounted on"] == mount:
+                return data
+        elif filesystem:
+            if data["filesystem"] == filesystem:
+                return data
+        else:
+            partitions.append(data)
+    
+    return partitions
