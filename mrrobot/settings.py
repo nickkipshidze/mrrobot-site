@@ -3,6 +3,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SOURCES = ["/source1/", "/source2/"]
+PARTITIONS = ["/dev/nvme0n1p1", "/dev/nvme0n1p2"]
 
 EXTS_MEDIA = (".mp4", ".mp3", ".wav")
 EXTS_IMAGES = (".jpg", ".jpeg", ".jfif", ".pjpeg", ".pjp", ".gif", ".png", ".svg")
