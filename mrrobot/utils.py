@@ -2,7 +2,7 @@ import os, re
 from . import settings
 
 def natsort(s):
-    [int(t) if t.isdigit() else t.lower() for t in re.split("(\d+)", s)] 
+    return [int(t) if t.isdigit() else t.lower() for t in re.split("(\d+)", s)] 
 
 def sort(items):
     return sorted(items, key=natsort)
