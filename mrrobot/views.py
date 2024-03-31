@@ -3,7 +3,7 @@ from django.shortcuts import render
 import os, re, mimetypes
 
 from . import settings
-from .utils import list_sources, list_item, get_source, is_directory, is_binay_file
+from .utils import list_sources, list_item, get_source, is_directory, is_binay_file, get_partition_data
 
 def home(request):
     if request.method != "GET":
@@ -46,6 +46,26 @@ def openitem(request, path):
     
     else:
         return download(request, full_path)
+
+def dbstat(request):
+    available = 0
+    capacity = 0
+    
+    for partition in settings.PARTITIONS:
+        data = get_partition_data(partition)
+        available += data["avail"]
+        capacity += data["size"]
+    
+    available = round(available / (1024**2), 2)
+    capacity = round(capacity / (1024**2), 2)
+        
+    return render(request, "database.html", {
+        "dircount": len(list_sources()),
+        "partitions": len(settings.PARTITIONS),
+        "available": available,
+        "capacity": capacity,
+        "percentage": round((available / capacity) * 100, 2),
+    })
 
 def watch(request, path):
     return render(request, "watch.html", {
