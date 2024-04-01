@@ -41,3 +41,15 @@ blockquote {
 blockquote > * {
     color: #717D8B;
 }
+
+@media screen and (max-width: 768px) {
+    .status-data {
+        font-size: 15px;
+    }
+    .status-data > :first-child {
+        width: 70%;
+    }
+    .status-data > :last-child {
+        width: 30%;
+    }
+}
