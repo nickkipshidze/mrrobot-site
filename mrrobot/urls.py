@@ -7,6 +7,8 @@ from . import views, settings
 urlpatterns = [
     path("robots.txt", lambda request: HttpResponse("User-agent: *\nDisallow: /", content_type="text/plain")),
     path("", views.home),
+    path("view", views.viewhome),
+    path("view/<path:path>", views.viewitem, name="view"),
     path("open/<path:path>", views.openitem, name="open"),
     path("stream/<path:path>", views.stream, name="stream"),
     path("watch/<path:path>", views.watch, name="watch"),
