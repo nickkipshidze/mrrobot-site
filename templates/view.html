@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block head %}
+    {% if title %}
+        <title>MrRobotSite | {{ title }}</title>
+    {% else %}
+        <title>MrRobotSite</title>
+    {% endif %}
+    <link rel="stylesheet" href="{% static 'css/view.css' %}">
+{% endblock %}
+
+{% block body %}
+    <div class="content">
+        {% for item in content %}
+            <a href="{{ item.action }}" style="cursor: pointer;">
+                <div class="mediawidget">
+                    <img src="{{ item.thumbnail }}" alt="thumbnail {{ item.title }}">
+                    <h1>{{ item.title }}</h1>
+                    <div class="mediastats">
+                        <p>Uploaded {{ item.upload_date }}</p>
+                        <p>{{ item.file_count }} files</p>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+{% endblock %}

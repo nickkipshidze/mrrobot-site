@@ -1,0 +1,36 @@
+.content {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.mediawidget {
+    display: flex;
+    flex-direction: column;
+    max-width: 500px;
+    gap: 10px;
+}
+
+.mediawidget > img {
+    border-radius: 12px;
+}
+
+.mediawidget > h1 {
+    font-size: 25px;
+}
+
+.mediawidget > .mediastats {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.mediawidget > .mediastats > * {
+    color: #A9A9A9;
+}
+
+.mediawidget > .mediastats :last-child {
+    font-weight: 900;
+    color: #cccccc;
+}
