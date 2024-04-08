@@ -20,6 +20,8 @@ def list_sources():
 def list_item(path):
     if os.path.exists(path):
         return sort(filter_items(os.listdir(path)))
+    elif os.path.exists(get_source(path)):
+        return sort(filter_items(os.listdir(get_source(path))))
     return []
 
 def get_source(item):
