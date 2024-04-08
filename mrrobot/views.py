@@ -1,6 +1,7 @@
 from django.http import HttpResponse, FileResponse, StreamingHttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.shortcuts import render
 import os, re, mimetypes
+from datetime import datetime
 
 from . import settings
 from .utils import list_sources, list_item, get_source, is_directory, is_binay_file, get_partition_data
@@ -46,6 +47,26 @@ def openitem(request, path):
     
     else:
         return download(request, full_path)
+
+def viewhome(request):
+    dirs = list_sources()
+    content = []
+    for dir in dirs:
+        content.append(
+            {
+                "title": dir,
+                "thumbnail": f"open/{os.path.join(dir, 'thumbnail.jpg')}?save=true" if "thumbnail.jpg" in os.listdir(get_source(dir)) else "/static/img/empty.png",
+                "action": f"view/{dir}",
+                "upload_date": str(datetime.fromtimestamp(os.stat(get_source(dir)).st_ctime).strftime("%Y/%m/%d")),
+                "file_count": str(len(os.listdir(get_source(dir)))) if is_directory(get_source(dir)) else -1
+            }
+        )
+    return render(request, "view.html", {
+        "content": content
+    })
+
+def viewitem(request, path):
+    return HttpResponse(path)
 
 def dbstat(request):
     available = 0
