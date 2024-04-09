@@ -48,25 +48,48 @@ def openitem(request, path):
     else:
         return download(request, full_path)
 
-def viewhome(request):
-    dirs = list_sources()
+def viewitem(request, path = None):
+    if path:
+        files = list_item(path)
+        for i in range(len(files)): files[i] = os.path.join(path, files[i])
+    else:
+        files = list_sources()
+        
     content = []
-    for dir in dirs:
+    
+    for file in files:
+        title = file.split("/")[-1]
+        
+        if len(title) > 30:
+            title = title[:30] + "..."
+        
+        if is_directory(file): thumbnail = f"/open/{os.path.join(file, 'thumbnail.jpg')}?save=true" if "thumbnail.jpg" in os.listdir(get_source(file)) else "/static/img/directory.png"
+        elif file.endswith(settings.EXTS_MEDIA): thumbnail = "/static/img/mediafile.png"
+        elif file.endswith(settings.EXTS_IMAGES): thumbnail = "/static/img/imagefile.png"
+        else: thumbnail = "/static/img/unknown.png"
+        
+        if not is_directory(file):
+            file_count = -1
+            action = f"/open/{file}"
+        else:
+            file_count = str(len(os.listdir(get_source(file))))
+            action = f"/view/{file}"
+        
+        upload_date = str(datetime.fromtimestamp(os.stat(get_source(file)).st_ctime).strftime("%Y/%m/%d"))
+        
         content.append(
             {
-                "title": dir,
-                "thumbnail": f"open/{os.path.join(dir, 'thumbnail.jpg')}?save=true" if "thumbnail.jpg" in os.listdir(get_source(dir)) else "/static/img/empty.png",
-                "action": f"view/{dir}",
-                "upload_date": str(datetime.fromtimestamp(os.stat(get_source(dir)).st_ctime).strftime("%Y/%m/%d")),
-                "file_count": str(len(os.listdir(get_source(dir)))) if is_directory(get_source(dir)) else -1
+                "title": title,
+                "thumbnail": thumbnail,
+                "action": action,
+                "upload_date": upload_date,
+                "file_count": file_count
             }
         )
+        
     return render(request, "view.html", {
         "content": content
     })
-
-def viewitem(request, path):
-    return HttpResponse(path)
 
 def dbstat(request):
     available = 0
