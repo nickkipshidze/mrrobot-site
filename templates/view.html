@@ -19,7 +19,9 @@
                     <h1>{{ item.title }}</h1>
                     <div class="mediastats">
                         <p>Uploaded {{ item.upload_date }}</p>
-                        <p>{{ item.file_count }} files</p>
+                        {% if item.file_count != -1 %}
+                            <p>{{ item.file_count }} files</p>
+                        {% endif %}
                     </div>
                 </div>
             </a>
