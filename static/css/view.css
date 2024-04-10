@@ -8,12 +8,13 @@
 .mediawidget {
     display: flex;
     flex-direction: column;
-    max-width: 500px;
+    width: 500px;
     gap: 10px;
 }
 
 .mediawidget > img {
     border-radius: 12px;
+    width: 100%;
 }
 
 .mediawidget > h1 {
