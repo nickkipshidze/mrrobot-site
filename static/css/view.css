@@ -8,7 +8,7 @@
 .mediawidget {
     display: flex;
     flex-direction: column;
-    width: 500px;
+    width: 420px; /* nice */
     gap: 10px;
 }
 
@@ -34,4 +34,23 @@
 .mediawidget > .mediastats :last-child {
     font-weight: 900;
     color: #cccccc;
+}
+
+@media screen and (max-width: 910px) {
+    .content > a {
+        display: block;
+    }
+
+    .mediawidget {
+        width: calc(100vw - 50px);
+    }
+
+    .mediawidget > img {
+        display: block;
+        object-fit: contain;
+    }
+
+    .content {
+        flex-direction: column;
+    }
 }
