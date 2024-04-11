@@ -72,7 +72,7 @@ def viewitem(request, path = None):
             file_count = -1
             action = f"/open/{file}"
         else:
-            file_count = str(len(os.listdir(get_source(file))))
+            file_count = str(sum([len(files) for root, dirs, files in os.walk(get_source(file))]))
             action = f"/view/{file}"
         
         upload_date = str(datetime.fromtimestamp(os.stat(get_source(file)).st_ctime).strftime("%Y/%m/%d"))
