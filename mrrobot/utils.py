@@ -1,5 +1,36 @@
 import os, re
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+
 from . import settings
+
+def list_paths(directory):
+    return [str(path) for path in Path(directory).rglob('*')]
+
+def paths_concurrent(directories):
+    paths = []
+    with ThreadPoolExecutor() as executor:
+        futures = {executor.submit(list_paths, dir): dir for dir in directories}
+        for future in as_completed(futures):
+            paths.extend(future.result())
+    return paths
+
+DATA_ACCESS_HASHMAP = {
+    path: True for path in paths_concurrent(settings.SOURCES)
+}
+
+def access(path):
+    try:
+        return DATA_ACCESS_HASHMAP[
+            path
+        ]
+    except KeyError:
+        try:
+            return DATA_ACCESS_HASHMAP[
+                get_source(path)
+            ]
+        except KeyError:
+            return False
 
 def natsort(s):
     return [int(t) if t.isdigit() else t.lower() for t in re.split("(\d+)", s)] 
@@ -27,7 +58,6 @@ def list_item(path):
 def get_source(item):
     if os.path.exists(item):
         return item
-    
     for source in settings.SOURCES:
         if os.path.exists(os.path.join(source, item)):
             return os.path.join(source, item).__str__()
