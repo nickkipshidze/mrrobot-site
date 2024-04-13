@@ -60,9 +60,6 @@ def viewitem(request, path = None):
     for file in files:
         title = file.split("/")[-1]
         
-        if len(title) > 30:
-            title = title[:30] + "..."
-        
         if is_directory(file): thumbnail = f"/open/{os.path.join(file, 'thumbnail.jpg')}?save=true" if "thumbnail.jpg" in os.listdir(get_source(file)) else "/static/img/directory.png"
         elif file.endswith(settings.EXTS_MEDIA): thumbnail = "/static/img/mediafile.png"
         elif file.endswith(settings.EXTS_IMAGES): thumbnail = "/static/img/imagefile.png"

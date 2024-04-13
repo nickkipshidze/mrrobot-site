@@ -19,6 +19,8 @@
 
 .mediawidget > h1 {
     font-size: 25px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .mediawidget > .mediastats {
