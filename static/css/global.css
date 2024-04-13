@@ -163,3 +163,11 @@ video {
         border-bottom-left-radius: 10px;
     }    
 }
+
+@media screen and (max-width: 420px) {
+    /* This should be the "database" button */
+    /* Who even uses that? */
+    .navbar > div :nth-child(3) {
+        display: none;
+    }
+}
