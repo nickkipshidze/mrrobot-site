@@ -2,9 +2,21 @@ from django.http import HttpResponse, FileResponse, StreamingHttpResponse, HttpR
 from django.shortcuts import render
 import os, re, mimetypes
 from datetime import datetime
+from functools import wraps
 
+from .utils import list_sources, list_item, get_source, is_directory
+from . import utils
+    
 from . import settings
-from .utils import list_sources, list_item, get_source, is_directory, is_binay_file, get_partition_data
+
+def securitycheck(function):
+    @wraps(function)
+    def wrapper(request, *args, **kwargs):
+        path = kwargs.get("path")
+        if path != None and not utils.access(path):
+            return HttpResponse("<h1>Access Denied</h1><p>You are not authorized to access requested resource on this server.</p>", status=403)
+        return function(request, *args, **kwargs)
+    return wrapper
 
 def home(request):
     if request.method != "GET":
@@ -21,6 +33,7 @@ def home(request):
             "directories": directories
         })
 
+@securitycheck
 def openitem(request, path):
     full_path = get_source(path)
     
@@ -42,12 +55,13 @@ def openitem(request, path):
     elif full_path.endswith(settings.EXTS_IMAGES):
         return preview_image(request, path)
 
-    elif not is_binay_file(full_path):
+    elif not utils.is_binay_file(full_path):
         return preview_text(request, full_path)
     
     else:
         return download(request, full_path)
 
+@securitycheck
 def viewitem(request, path = None):
     if path:
         files = list_item(path)
@@ -93,7 +107,7 @@ def dbstat(request):
     capacity = 0
     
     for partition in settings.PARTITIONS:
-        data = get_partition_data(partition)
+        data = utils.get_partition_data(partition)
         available += data["avail"]
         capacity += data["size"]
     
@@ -108,12 +122,14 @@ def dbstat(request):
         "percentage": round((available / capacity) * 100, 2),
     })
 
+@securitycheck
 def watch(request, path):
     return render(request, "watch.html", {
         "video_path": path,
         "video_name": path.split("/")[-1].strip(".mp4")}
     )
-    
+
+@securitycheck
 def download(request, path):
     if not os.path.exists(path):
         return HttpResponseNotFound("<h1>File does not exist</h1>")
@@ -132,11 +148,13 @@ def download(request, path):
         print("[!]", error)
         raise HttpResponse("Unknown error occured", status=500)
     
-def preview_image(request, path):    
+@securitycheck
+def preview_image(request, path):
     return HttpResponse(
         f"<body style=\"display: flex; align-items: center; justify-content: center; height: 100vh; background-color: #000; overflow: hidden;\"><img src=\"/open/{path}?save=true\" style=\"background-color: white;\"/></body>"
     )
-    
+
+@securitycheck
 def preview_text(request, path):
     try:
         return HttpResponse(
@@ -147,6 +165,7 @@ def preview_text(request, path):
             f"<h1>Failed to read</h1>"
         )
 
+@securitycheck
 def stream(request, path):
     file_path = os.path.join(get_source(path))
     
