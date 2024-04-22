@@ -126,7 +126,7 @@ def dbstat(request):
 def watch(request, path):
     return render(request, "watch.html", {
         "video_path": path,
-        "video_name": path.split("/")[-1].strip(".mp4")}
+        "video_name": path.split("/")[-1][:-4]}
     )
 
 @securitycheck
