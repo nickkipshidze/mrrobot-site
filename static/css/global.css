@@ -165,7 +165,7 @@ video {
 }
 
 @media screen and (max-width: 420px) {
-    /* This should be the "database" button */
+    /* This should be the "server" button */
     /* Who even uses that? */
     .navbar > div :nth-child(3) {
         display: none;
