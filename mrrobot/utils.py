@@ -1,8 +1,31 @@
-import os, re
+import os, re, random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from . import settings
+
+random.seed(
+    sum(
+        [ord(char) for char in settings.SECRET_KEY]
+    )
+)
+
+ACCESS_B36_PATH = {}
+ACCESS_PATH_B36 = {}
+
+def base36encode(number):
+    is_negative = number < 0
+    number = abs(number)
+
+    alphabet, base36 = ["0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", ""]
+
+    while number:
+        number, i = divmod(number, 36)
+        base36 = alphabet[i] + base36
+    if is_negative:
+        base36 = "-" + base36
+
+    return base36 or alphabet[0]
 
 def list_paths(directory):
     return [str(path) for path in Path(directory).rglob('*')]
@@ -15,20 +38,48 @@ def paths_concurrent(directories):
             paths.extend(future.result())
     return paths
 
-DATA_ACCESS_HASHMAP = {
-    path: True for path in paths_concurrent(settings.SOURCES)
-}
+def generate_hashmaps():
+    global ACCESS_B36_PATH, ACCESS_PATH_B36
+    
+    print("[.] Generating all paths...")
+    paths = paths_concurrent(settings.SOURCES)
+    print("[+] Done")
+    
+    ipath = 0
+    while ipath < len(paths):
+        base36 = base36encode(random.randint(0, 7958661109946400884391935))
+        if not base36 in ACCESS_B36_PATH:
+            print(f"[+] Appending: {base36} | {(ipath/len(paths))*100:.2f}%", end="\r")
+            ACCESS_B36_PATH[base36] = paths[ipath]
+            ipath += 1
+        else:
+            print(f"[!] Base36 number already exists! ({base36})")
+    print("\n[+] Done")
+    
+    print("[.] Generating reverse hashmap")
+    ACCESS_PATH_B36 = {
+        path:base36 for base36, path in ACCESS_B36_PATH.items()
+    }
+    print("[+] Done | Ready to start")
+
+def b36topath(base36):
+    try:
+        return ACCESS_B36_PATH[base36]
+    except KeyError:
+        return base36
+
+def pathtob36(path):
+    try:
+        return ACCESS_PATH_B36[path]
+    except KeyError:
+        return path
 
 def access(path):
     try:
-        return DATA_ACCESS_HASHMAP[
-            path
-        ]
+        return ACCESS_B36_PATH[path]
     except KeyError:
         try:
-            return DATA_ACCESS_HASHMAP[
-                get_source(path)
-            ]
+            return ACCESS_PATH_B36[path]
         except KeyError:
             return False
 
@@ -118,3 +169,5 @@ def get_partition_data(filesystem = None, mount = None):
             partitions.append(data)
     
     return partitions
+
+generate_hashmaps()
