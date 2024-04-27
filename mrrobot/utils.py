@@ -41,6 +41,19 @@ def paths_concurrent(directories):
 def generate_hashmaps():
     global ACCESS_B36_PATH, ACCESS_PATH_B36
     
+    if os.path.exists(settings.CACHEPY):
+        try:
+            print(f"[.] Importing cache ({settings.CACHEPY})")
+            import cache
+            ACCESS_B36_PATH = cache.ACCESS_B36_PATH
+            print("[+] Imported ACCESS_B36_PATH")
+            ACCESS_PATH_B36 = cache.ACCESS_PATH_B36
+            print("[+] Imported ACCESS_PATH_B36")
+            print("[+] Done | Ready to start")
+            return True
+        except Exception as error:
+            print(f"[!] Error occured while importing cache: {error}")
+    
     print("[.] Generating all paths...")
     paths = paths_concurrent(settings.SOURCES)
     print("[+] Done")
@@ -60,6 +73,14 @@ def generate_hashmaps():
     ACCESS_PATH_B36 = {
         path:base36 for base36, path in ACCESS_B36_PATH.items()
     }
+    print("[+] Done")
+    
+    print(f"[.] Writing generated data to cache file ({settings.CACHEPY})")
+    cachefile = open("cache.py", "w")
+    cachefile.write(
+        f"{ACCESS_B36_PATH=}\n"
+        f"{ACCESS_PATH_B36=}\n"
+    )
     print("[+] Done | Ready to start")
 
 def b36topath(base36):
