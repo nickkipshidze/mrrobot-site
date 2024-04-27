@@ -11,11 +11,22 @@ from . import settings
 
 def securitycheck(function):
     @wraps(function)
-    def wrapper(request, *args, **kwargs):
-        path = kwargs.get("path")
-        if path != None and not utils.access(path):
-            return HttpResponse("<h1>Access Denied</h1><p>You are not authorized to access requested resource on this server.</p>", status=403)
-        return function(request, *args, **kwargs)
+    def wrapper(*args, **kwargs):
+        if kwargs.get("path") != None:
+            path = get_source(kwargs.get("path"))
+            if path != None and not utils.access(path):
+                return HttpResponse("<h1>Access Denied</h1><p>You are not authorized to access requested resource on this server.</p>", status=403)
+        return function(*args, **kwargs)
+    return wrapper
+
+def resolvepath(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        if kwargs.get("path") != None:
+            kwargs["path"] = utils.b36topath(
+                kwargs.get("path")
+            )
+        return function(*args, **kwargs)
     return wrapper
 
 def home(request):
@@ -33,6 +44,7 @@ def home(request):
             "directories": directories
         })
 
+@resolvepath
 @securitycheck
 def openitem(request, path):
     full_path = get_source(path)
@@ -47,20 +59,21 @@ def openitem(request, path):
         })
         
     elif "save" in request.GET and request.GET["save"] == "true":
-        return download(request, full_path)
+        return download(path=utils.pathtob36(full_path))
         
     elif full_path.endswith(settings.EXTS_MEDIA):
-        return HttpResponseRedirect(f"/watch/{path}")
+        return HttpResponseRedirect(f"/watch/{utils.pathtob36(full_path)}")
     
     elif full_path.endswith(settings.EXTS_IMAGES):
-        return preview_image(request, path)
+        return preview_image(path=utils.pathtob36(full_path))
 
     elif not utils.is_binay_file(full_path):
-        return preview_text(request, full_path)
+        return preview_text(path=utils.pathtob36(full_path))
     
     else:
-        return download(request, full_path)
+        return download(path=utils.pathtob36(full_path))
 
+@resolvepath
 @securitycheck
 def viewitem(request, path = None):
     if path:
@@ -81,10 +94,10 @@ def viewitem(request, path = None):
         
         if not is_directory(file):
             file_count = -1
-            action = f"/open/{file}"
+            action = f"/open/{utils.pathtob36(get_source(file))}"
         else:
             file_count = str(sum([len(files) for root, dirs, files in os.walk(get_source(file))]))
-            action = f"/view/{file}"
+            action = f"/view/{utils.pathtob36(get_source(file))}"
         
         upload_date = str(datetime.fromtimestamp(os.stat(get_source(file)).st_ctime).strftime("%Y/%m/%d"))
         
@@ -122,6 +135,7 @@ def dbstat(request):
         "percentage": round((available / capacity) * 100, 2),
     })
 
+@resolvepath
 @securitycheck
 def watch(request, path):
     return render(request, "watch.html", {
@@ -129,8 +143,9 @@ def watch(request, path):
         "video_name": path.split("/")[-1][:-4]}
     )
 
+@resolvepath
 @securitycheck
-def download(request, path):
+def download(path):
     if not os.path.exists(path):
         return HttpResponseNotFound("<h1>File does not exist</h1>")
     
@@ -148,14 +163,16 @@ def download(request, path):
         print("[!]", error)
         raise HttpResponse("Unknown error occured", status=500)
     
+@resolvepath
 @securitycheck
-def preview_image(request, path):
+def preview_image(path):
     return HttpResponse(
         f"<body style=\"display: flex; align-items: center; justify-content: center; height: 100vh; background-color: #000; overflow: hidden;\"><img src=\"/open/{path}?save=true\" style=\"background-color: white;\"/></body>"
     )
 
+@resolvepath
 @securitycheck
-def preview_text(request, path):
+def preview_text(path):
     try:
         return HttpResponse(
             f"<pre>{open(path).read()}</pre>"
@@ -165,6 +182,7 @@ def preview_text(request, path):
             f"<h1>Failed to read</h1>"
         )
 
+@resolvepath
 @securitycheck
 def stream(request, path):
     file_path = os.path.join(get_source(path))
