@@ -16,6 +16,8 @@ def securitycheck(function):
             path = get_source(kwargs.get("path"))
             if path != None and not utils.access(path):
                 return HttpResponse("<h1>Access Denied</h1><p>You are not authorized to access requested resource on this server.</p>", status=403)
+            elif path == None and kwargs.get("path") != None:
+                return HttpResponseNotFound("<h1>Not found</h1><p>The requested resource was not found on this server.</p>")
         return function(*args, **kwargs)
     return wrapper
 
