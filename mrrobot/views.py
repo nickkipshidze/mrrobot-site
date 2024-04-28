@@ -57,8 +57,8 @@ def openitem(request, path):
             "directories": directories,
             "path": path
         })
-        
-    elif "save" in request.GET and request.GET["save"] == "true":
+    
+    elif "raw" in request.GET and request.GET["raw"] == "":
         return download(path=utils.pathtob36(full_path))
         
     elif full_path.endswith(settings.EXTS_MEDIA):
@@ -87,7 +87,7 @@ def viewitem(request, path = None):
     for file in files:
         title = file.split("/")[-1]
         
-        if is_directory(file): thumbnail = f"/open/{os.path.join(file, 'thumbnail.jpg')}?save=true" if "thumbnail.jpg" in os.listdir(get_source(file)) else "/static/img/directory.png"
+        if is_directory(file): thumbnail = f"/open/{os.path.join(file, 'thumbnail.jpg')}?raw" if "thumbnail.jpg" in os.listdir(get_source(file)) else "/static/img/directory.png"
         elif file.endswith(settings.EXTS_MEDIA): thumbnail = "/static/img/mediafile.png"
         elif file.endswith(settings.EXTS_IMAGES): thumbnail = "/static/img/imagefile.png"
         else: thumbnail = "/static/img/unknown.png"
@@ -166,8 +166,9 @@ def download(path):
 @resolvepath
 @securitycheck
 def preview_image(path):
+    path = utils.pathtob36(get_source(path))
     return HttpResponse(
-        f"<body style=\"display: flex; align-items: center; justify-content: center; height: 100vh; background-color: #000; overflow: hidden;\"><img src=\"/open/{path}?save=true\" style=\"background-color: white;\"/></body>"
+        f"<body style=\"display: flex; align-items: center; justify-content: center; height: 100vh; background-color: #000; overflow: hidden;\"><img src=\"/open/{path}?raw\" style=\"background-color: white;\"/></body>"
     )
 
 @resolvepath
