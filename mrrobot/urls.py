@@ -5,7 +5,12 @@ from django.http import HttpResponse
 from . import views, settings
 
 urlpatterns = [
-    path("robots.txt", lambda request: HttpResponse("User-agent: *\nDisallow: /", content_type="text/plain")),
+    path(
+        "robots.txt",
+        lambda request:
+            HttpResponse("User-agent: *\nDisallow: /", content_type="text/plain")
+    ),
+    
     path("", views.viewitem),
     path("view", views.viewitem),
     path("view/<path:path>", views.viewitem, name="view"),
