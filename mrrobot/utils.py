@@ -38,7 +38,7 @@ def paths_concurrent(directories):
             paths.extend(future.result())
     return paths
 
-def generate_hashmaps():
+def generate_hashmaps(update=False):
     global ACCESS_B36_PATH, ACCESS_PATH_B36
     
     if os.path.exists(settings.CACHEPY):
@@ -49,31 +49,34 @@ def generate_hashmaps():
             print("[+] Imported ACCESS_B36_PATH")
             ACCESS_PATH_B36 = cache.ACCESS_PATH_B36
             print("[+] Imported ACCESS_PATH_B36")
-            print("[+] Done | Ready to start")
-            return True
+            print("[+] Done | Finished importing from cache")
+            if not update: return True
         except Exception as error:
             print(f"[!] Error occured while importing cache: {error}")
+            
+    if update: print("[.] Updating hashmaps...")
     
     print("[.] Generating all paths...")
     paths = paths_concurrent(settings.SOURCES)
-    print("[+] Done")
     
     ipath = 0
     while ipath < len(paths):
         base36 = base36encode(random.randint(0, 7958661109946400884391935))
-        if not base36 in ACCESS_B36_PATH:
-            print(f"[+] Appending: {base36} | {(ipath/len(paths))*100:.2f}%", end="\r")
-            ACCESS_B36_PATH[base36] = paths[ipath]
-            ipath += 1
+        if not paths[ipath] in ACCESS_PATH_B36:
+            if not base36 in ACCESS_B36_PATH:
+                print(f"[+] Appending: {base36} | {(ipath/len(paths))*100:.2f}%", end="\r")
+                ACCESS_B36_PATH[base36] = paths[ipath]
+            else:
+                print(f"[!] Base36 number already exists! ({base36})", end="\r")
+                ipath -= 1
         else:
-            print(f"[!] Base36 number already exists! ({base36})")
-    print("\n[+] Done")
+            print(f"[+] Skipping: {ACCESS_PATH_B36[paths[ipath]]} | {(ipath/len(paths))*100:.2f}%", end="\r")
+        ipath += 1
     
     print("[.] Generating reverse hashmap")
     ACCESS_PATH_B36 = {
         path:base36 for base36, path in ACCESS_B36_PATH.items()
     }
-    print("[+] Done")
     
     print(f"[.] Writing generated data to cache file ({settings.CACHEPY})")
     cachefile = open("cache.py", "w")
@@ -81,7 +84,7 @@ def generate_hashmaps():
         f"{ACCESS_B36_PATH=}\n"
         f"{ACCESS_PATH_B36=}\n"
     )
-    print("[+] Done | Ready to start")
+    print("[+] Done | Finished generating hashmaps" if not update else "[+] Done | Finished updating hashmaps")
 
 def b36topath(base36):
     try:
@@ -191,4 +194,4 @@ def get_partition_data(filesystem = None, mount = None):
     
     return partitions
 
-generate_hashmaps()
+generate_hashmaps(update=True)
