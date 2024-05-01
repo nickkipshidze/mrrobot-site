@@ -4,7 +4,9 @@ import os, re, mimetypes
 from datetime import datetime
 from functools import wraps
 
-from .utils import list_sources, list_item, get_source, is_directory
+from .utils import list as utlist
+from .utils import file as utfile
+from .utils import hashsec as hs
 from . import utils
     
 from . import settings
@@ -13,8 +15,8 @@ def securitycheck(function):
     @wraps(function)
     def wrapper(*args, **kwargs):
         if kwargs.get("path") != None:
-            path = get_source(kwargs.get("path"))
-            if path != None and not utils.access(path):
+            path = utfile.source(kwargs.get("path"))
+            if path != None and not utils.hashsec.access(path):
                 return HttpResponse("<h1>Access Denied</h1><p>You are not authorized to access requested resource on this server.</p>", status=403)
             elif path == None and kwargs.get("path") != None:
                 return HttpResponseNotFound("<h1>Not found</h1><p>The requested resource was not found on this server.</p>")
@@ -25,7 +27,7 @@ def resolvepath(function):
     @wraps(function)
     def wrapper(*args, **kwargs):
         if kwargs.get("path") != None:
-            kwargs["path"] = utils.b36topath(
+            kwargs["path"] = hs.b36topath(
                 kwargs.get("path")
             )
         return function(*args, **kwargs)
@@ -36,10 +38,10 @@ def home(request):
         return HttpResponse("Nope", status=403)
     
     if request.method == "GET":
-        directories = {key:[] for key in list_sources() if is_directory(key)}
+        directories = {key:[] for key in utlist.sources() if utfile.isdir(key)}
         
         for key in directories:
-            for file in sorted(list_item(get_source(key))):
+            for file in sorted(utlist.items(utfile.source(key))):
                 directories[key].append(file)
         
         return render(request, "listing.html", {
@@ -49,10 +51,10 @@ def home(request):
 @resolvepath
 @securitycheck
 def openitem(request, path):
-    full_path = get_source(path)
+    full_path = utfile.source(path)
     
-    if is_directory(full_path):
-        directories = {path: list_item(full_path)} 
+    if utfile.isdir(full_path):
+        directories = {path: utlist.items(full_path)} 
         
         return render(request, "listing.html", {
             "title": f"{path} Listing",
@@ -61,47 +63,47 @@ def openitem(request, path):
         })
     
     elif "raw" in request.GET and request.GET["raw"] == "":
-        return download(path=utils.pathtob36(full_path))
+        return download(path=hs.pathtob36(full_path))
         
     elif full_path.endswith(settings.EXTS_MEDIA):
-        return HttpResponseRedirect(f"/watch/{utils.pathtob36(full_path)}")
+        return HttpResponseRedirect(f"/watch/{hs.pathtob36(full_path)}")
     
     elif full_path.endswith(settings.EXTS_IMAGES):
-        return preview_image(path=utils.pathtob36(full_path))
+        return preview_image(path=hs.pathtob36(full_path))
 
-    elif not utils.is_binay_file(full_path):
-        return preview_text(path=utils.pathtob36(full_path))
+    elif not utfile.isbin(full_path):
+        return preview_text(path=hs.pathtob36(full_path))
     
     else:
-        return download(path=utils.pathtob36(full_path))
+        return download(path=hs.pathtob36(full_path))
 
 @resolvepath
 @securitycheck
 def viewitem(request, path = None):
     if path:
-        files = list_item(path)
+        files = utlist.items(path)
         for i in range(len(files)): files[i] = os.path.join(path, files[i])
     else:
-        files = list_sources()
+        files = utlist.sources()
         
     content = []
     
     for file in files:
         title = file.split("/")[-1]
         
-        if is_directory(file): thumbnail = f"/open/{os.path.join(file, 'thumbnail.jpg')}?raw" if "thumbnail.jpg" in os.listdir(get_source(file)) else "/static/img/directory.png"
+        if utfile.isdir(file): thumbnail = f"/open/{os.path.join(file, 'thumbnail.jpg')}?raw" if "thumbnail.jpg" in os.listdir(utfile.source(file)) else "/static/img/directory.png"
         elif file.endswith(settings.EXTS_MEDIA): thumbnail = "/static/img/mediafile.png"
         elif file.endswith(settings.EXTS_IMAGES): thumbnail = "/static/img/imagefile.png"
         else: thumbnail = "/static/img/unknown.png"
         
-        if not is_directory(file):
+        if not utfile.isdir(file):
             file_count = -1
-            action = f"/open/{utils.pathtob36(get_source(file))}"
+            action = f"/open/{hs.pathtob36(utfile.source(file))}"
         else:
-            file_count = str(sum([len(files) for root, dirs, files in os.walk(get_source(file))]))
-            action = f"/view/{utils.pathtob36(get_source(file))}"
+            file_count = str(sum([len(files) for root, dirs, files in os.walk(utfile.source(file))]))
+            action = f"/view/{hs.pathtob36(utfile.source(file))}"
         
-        upload_date = str(datetime.fromtimestamp(os.stat(get_source(file)).st_ctime).strftime("%Y/%m/%d"))
+        upload_date = str(datetime.fromtimestamp(os.stat(utfile.source(file)).st_ctime).strftime("%Y/%m/%d"))
         
         content.append(
             {
@@ -122,7 +124,7 @@ def dbstat(request):
     capacity = 0
     
     for partition in settings.PARTITIONS:
-        data = utils.get_partition_data(partition)
+        data = utils.partdat(partition)
         available += data["avail"]
         capacity += data["size"]
     
@@ -130,7 +132,7 @@ def dbstat(request):
     capacity = round(capacity / (1024**2), 2)
         
     return render(request, "database.html", {
-        "dircount": len(list_sources()),
+        "dircount": len(utlist.sources()),
         "partitions": len(settings.PARTITIONS),
         "available": available,
         "capacity": capacity,
@@ -168,7 +170,7 @@ def download(path):
 @resolvepath
 @securitycheck
 def preview_image(path):
-    path = utils.pathtob36(get_source(path))
+    path = hs.pathtob36(utfile.source(path))
     return HttpResponse(
         f"<body style=\"display: flex; align-items: center; justify-content: center; height: 100vh; background-color: #000; overflow: hidden;\"><img src=\"/open/{path}?raw\" style=\"background-color: white;\"/></body>"
     )
@@ -188,7 +190,7 @@ def preview_text(path):
 @resolvepath
 @securitycheck
 def stream(request, path):
-    file_path = os.path.join(get_source(path))
+    file_path = os.path.join(utfile.source(path))
     
     if not os.path.exists(file_path):
         raise HttpResponseNotFound("Video not found!")
