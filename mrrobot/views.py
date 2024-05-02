@@ -27,9 +27,12 @@ def resolvepath(function):
     @wraps(function)
     def wrapper(*args, **kwargs):
         if kwargs.get("path") != None:
-            kwargs["path"] = hs.b36topath(
-                kwargs.get("path")
-            )
+            try:
+                kwargs["path"] = hs.b36topath(
+                    kwargs.get("path")
+                )
+            except FileNotFoundError:
+                return HttpResponseNotFound("<h1>Not found</h1><p>The requested resource was not found on this server.</p>")
         return function(*args, **kwargs)
     return wrapper
 
@@ -91,7 +94,7 @@ def viewitem(request, path = None):
     for file in files:
         title = file.split("/")[-1]
         
-        if utfile.isdir(file): thumbnail = f"/open/{os.path.join(file, 'thumbnail.jpg')}?raw" if "thumbnail.jpg" in os.listdir(utfile.source(file)) else "/static/img/directory.png"
+        if utfile.isdir(file): thumbnail = f"/open/{hs.pathtob36(utfile.source(os.path.join(file, 'thumbnail.jpg')))}?raw" if "thumbnail.jpg" in os.listdir(utfile.source(file)) else "/static/img/directory.png"
         elif file.endswith(settings.EXTS_MEDIA): thumbnail = "/static/img/mediafile.png"
         elif file.endswith(settings.EXTS_IMAGES): thumbnail = "/static/img/imagefile.png"
         else: thumbnail = "/static/img/unknown.png"
@@ -143,7 +146,7 @@ def dbstat(request):
 @securitycheck
 def watch(request, path):
     return render(request, "watch.html", {
-        "video_path": path,
+        "video_path": hs.pathtob36(path),
         "video_name": path.split("/")[-1][:-4]}
     )
 
