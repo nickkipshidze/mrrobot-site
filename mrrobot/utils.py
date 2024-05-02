@@ -17,7 +17,7 @@ def sort(items):
     return sorted(items, key=natsort)
 
 def filter_items(items):
-    return [item for item in items if not (file.isdir(file.source(item)) and ".mrignore" in os.listdir(file.source(item)))]
+    return [item for item in items if not (file.isdir(item) and ".mrignore" in os.listdir(file.source(item)))]
 
 class hashsec:
     ACCESS_B36_PATH = {}
@@ -105,11 +105,13 @@ class hashsec:
         ACCESS_B36_PATH = hashsec.ACCESS_B36_PATH.copy()
         
         for path, base36 in hashsec.ACCESS_PATH_B36.items():
-            if not os.path.exists(path):
-                print(f"[-] Removing {base36} : {path}", end="\r")
+            try:
+                file.source(path)
+                continue
+            except (FileNotFoundError, FileExistsError):
+                print(f"[-] Removing {base36} : {path}")
                 ACCESS_PATH_B36.pop(path)
                 ACCESS_B36_PATH.pop(base36)
-        if len(ACCESS_PATH_B36) != len(hashsec.ACCESS_PATH_B36): print(end="\n")
                 
         hashsec.ACCESS_PATH_B36 = ACCESS_PATH_B36.copy()
         hashsec.ACCESS_B36_PATH = ACCESS_B36_PATH.copy()
@@ -122,13 +124,13 @@ class hashsec:
         try:
             return hashsec.ACCESS_B36_PATH[base36]
         except KeyError:
-            return base36
+            raise FileNotFoundError(f"Code '{base36}' not found in ACCESS_B36_PATH. Did you mean to call 'file.source'")
 
     def pathtob36(path):
         try:
             return hashsec.ACCESS_PATH_B36[path]
         except KeyError:
-            return path
+            raise FileNotFoundError(f"Path '{path}' not found in ACCESS_PATH_B36. Did you mean to call 'file.source'")
 
     def access(path):
         try:
@@ -148,17 +150,21 @@ class list:
         return filter_items(files)
     
     def items(path):
-        if os.path.exists(path):
-            return sort(filter_items(os.listdir(path)))
-        elif os.path.exists(file.source(path)):
-            return sort(filter_items(os.listdir(file.source(path))))
-        return []
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"File '{path}' not found. Did you mean to call 'file.source'")
+        elif not file.isdir(path):
+            raise NotADirectoryError(f"File '{path}' is not a directory")
+        else:
+            return sort(filter_items([os.path.join(path, file) for file in os.listdir(path)]))
         
     def paths(directory):
         return [str(path) for path in Path(directory).rglob('*')]
     
 class file:
     def isbin(path):
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"File '{path}' not found. Did you mean to call 'file.source'")
+        
         textchars = bytearray([7, 8, 9, 10, 12, 13, 27]) + bytearray(range(0x20, 0x7f)) + bytearray(range(0x80, 0x100))
         is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
 
@@ -173,25 +179,28 @@ class file:
                 return True
         
     def isdir(path):
-        if path == None:
-            return False
-        
         if os.path.isdir(path):
             return True
-        
-        for source in settings.SOURCES:
-            if os.path.isdir(os.path.join(source, path)):
-                return True
-            
+        elif os.path.isdir(file.source(path)):
+            return True
         return False
 
-    def source(path):
-        if os.path.exists(path):
-            return path
+    def source(path):        
+        if not os.path.exists(path):
+            for source in settings.SOURCES:
+                if os.path.exists(os.path.join(source, path)):
+                    path = os.path.join(source, path)
+                    break
+            else:
+                raise FileNotFoundError(f"File '{path}' was not found.")
+        
         for source in settings.SOURCES:
-            if os.path.exists(os.path.join(source, path)):
-                return os.path.join(source, path).__str__()
-        return None
+            if path[:len(source)] == source:
+                break
+        else:
+            raise FileExistsError(f"File '{path}' exists, but not in any of the sources.")
+        
+        return path
 
 def partdat(filesystem = None, mount = None):
     # Only works on Linux lol
