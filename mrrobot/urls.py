@@ -1,5 +1,4 @@
-from django.urls import path
-from django.views.static import serve
+from django.urls import path, include
 from django.conf.urls.static import static
 from django.http import HttpResponse
 from . import views, settings
@@ -10,6 +9,8 @@ urlpatterns = [
         lambda request:
             HttpResponse("User-agent: *\nDisallow: /", content_type="text/plain")
     ),
+    
+    path("api/", include("api.urls")),
     
     path("", views.viewitem),
     path("view", views.viewitem),
