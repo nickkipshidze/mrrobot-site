@@ -5,10 +5,13 @@
     justify-content: center;
 }
 
+.content > a {
+    width: 19%;
+}
+
 .mediawidget {
     display: flex;
     flex-direction: column;
-    width: 420px; /* nice */
     gap: 10px;
 }
 
@@ -37,6 +40,9 @@
     font-weight: 900;
     color: #cccccc;
 }
+
+@media screen and (max-width: 1660px) { .content > a { width: 18.5%; } }
+@media screen and (max-width: 1150px) { .content > a { width: 23.5%; } }
 
 @media screen and (max-width: 910px) {
     .content > a {
