@@ -43,6 +43,7 @@
 
 @media screen and (max-width: 1660px) { .content > a { width: 18.5%; } }
 @media screen and (max-width: 1150px) { .content > a { width: 23.5%; } }
+@media screen and (max-width: 1040px) { .content > a { width: 31.5%; } }
 
 @media screen and (max-width: 910px) {
     .content > a {
