@@ -29,6 +29,24 @@ Django app for hosting and streaming large videos. (courses & movies)
     $ python manage.py runserver 127.0.0.1:8000
     ```
 
+## Setting up SSL (self-signed)
+
+1. Make the certificates directory:
+    ```shell
+    $ mkdir certs
+    ```
+
+0. Generate the certificate:
+    ```shell
+    $ openssl req -x509 -newkey rsa:4096 -keyout ./certs/key.pem -out ./certs/cert.pem -days 365 -nodes
+    ```
+0. Run the server:
+    ```shell
+    $ gunicorn --certfile=./certs/cert.pem --keyfile=./certs/key.pem -b 0.0.0.0:8000 mrrobot.wsgi:application
+    ```
+
+Enjoy your suspicious website with an invalid SSL certificate.
+
 ## Website preview
 
 ### Home page
