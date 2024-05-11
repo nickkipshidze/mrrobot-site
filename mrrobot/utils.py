@@ -1,4 +1,4 @@
-import os, re, random
+import os, re, random, pickle
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
@@ -46,15 +46,9 @@ class hashsec:
         return paths
 
     def generate(update=False):        
-        if os.path.exists(settings.CACHEPY):
+        if os.path.exists(settings.CACHEPATH):
             try:
-                print(f"[.] Importing cache ({settings.CACHEPY})")
-                import cache
-                hashsec.ACCESS_B36_PATH = cache.ACCESS_B36_PATH
-                print("[+] Imported ACCESS_B36_PATH")
-                hashsec.ACCESS_PATH_B36 = cache.ACCESS_PATH_B36
-                print("[+] Imported ACCESS_PATH_B36")
-                print("[+] Done | Finished importing from cache")
+                hashsec.load(settings.CACHEPATH)
                 if not update: return True
             except Exception as error:
                 print(f"[!] Error occured while importing cache: {error}")
@@ -84,19 +78,26 @@ class hashsec:
             path:base36 for base36, path in hashsec.ACCESS_B36_PATH.items()
         }
         
-        print(f"[.] Writing generated data to cache file ({settings.CACHEPY})")
-        hashsec.cache(settings.CACHEPY)
+        print(f"[.] Writing generated data to cache file ({settings.CACHEPATH})")
+        hashsec.write(settings.CACHEPATH)
         
         print("[+] Done | Finished generating hashmaps" if not update else "[+] Done | Finished updating hashmaps")
         
-    def cache(path):
-        cachefile = open(path, "w")
-        cachefile.write(
-            f"ACCESS_B36_PATH={hashsec.ACCESS_B36_PATH.__str__()}\n"
-            f"ACCESS_PATH_B36={hashsec.ACCESS_PATH_B36.__str__()}\n"
-        )
-        cachefile.close()
+    def write(path):
+        pickle.dump({
+            "PATH_B36": hashsec.ACCESS_PATH_B36,
+            "B36_PATH": hashsec.ACCESS_B36_PATH
+        }, open(path, "wb"))
         print(f"[+] Wrote to cache")
+    
+    def load(path):
+        print(f"[.] Importing cache ({path})")
+        cache = pickle.load(open(path, "rb"))
+        hashsec.ACCESS_PATH_B36 = cache["PATH_B36"]
+        print("[+] Imported ACCESS_B36_PATH")
+        hashsec.ACCESS_B36_PATH = cache["B36_PATH"]
+        print("[+] Imported ACCESS_PATH_B36")
+        print("[+] Done | Finished importing from cache")
         
     def prune():
         print(f"[.] Cleaning hashmap... ({len(hashsec.ACCESS_PATH_B36.keys())})")
@@ -117,7 +118,7 @@ class hashsec:
         hashsec.ACCESS_B36_PATH = ACCESS_B36_PATH.copy()
         
         print(f"[+] Finished ({len(hashsec.ACCESS_PATH_B36.keys())})")
-        hashsec.cache(path=settings.CACHEPY)
+        hashsec.write(path=settings.CACHEPATH)
         print(end="\n")
 
     def b36topath(base36):
