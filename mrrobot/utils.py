@@ -17,7 +17,14 @@ def sort(items):
     return sorted(items, key=natsort)
 
 def filter_items(items):
-    return [item for item in items if not (file.isdir(item) and ".mrignore" in os.listdir(file.source(item)))]
+    filtered = []
+    for item in items:
+        try:
+            if not (file.isdir(item) and ".mrignore" in os.listdir(file.source(item))):
+                filtered.append(item)
+        except PermissionError:
+            continue
+    return filtered
 
 class hashsec:
     ACCESS_B36_PATH = {}
