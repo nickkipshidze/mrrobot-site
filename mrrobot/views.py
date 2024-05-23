@@ -142,6 +142,9 @@ def dbstat(request):
         "percentage": round((available / capacity) * 100, 2),
     })
 
+def about(request):
+    return render(request, "about.html")
+
 @resolvepath
 @securitycheck
 def watch(request, path):

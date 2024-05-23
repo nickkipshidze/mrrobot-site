@@ -19,4 +19,5 @@ urlpatterns = [
     path("stream/<path:path>", views.stream, name="stream"),
     path("watch/<path:path>", views.watch, name="watch"),
     path("database", views.dbstat, name="database"),
+    path("about", views.about, name="about"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
