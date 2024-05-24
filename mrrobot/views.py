@@ -142,6 +142,9 @@ def dbstat(request):
         "percentage": round((available / capacity) * 100, 2),
     })
 
+def server(request):
+    return render(request, "server.html")
+
 def about(request):
     return render(request, "about.html")
 
