@@ -46,17 +46,29 @@
 @media screen and (max-width: 1040px) { .content > a { width: 31.5%; } }
 
 @media screen and (max-width: 910px) {
+    .content {
+        margin: 0;
+        padding: 0;
+    }
+
     .content > a {
         display: block;
+        margin-bottom: 20px;
     }
 
     .mediawidget {
-        width: calc(100vw - 50px);
+        width: 100vw;
+    }
+
+    .mediawidget > * {
+        padding-left: 10px;
     }
 
     .mediawidget > img {
         display: block;
         object-fit: contain;
+        border-radius: 0;
+        padding: 0;
     }
 
     .content {
