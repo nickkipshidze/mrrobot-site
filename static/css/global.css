@@ -51,11 +51,11 @@ h1, h2, h3, h4, h5, h6, p, a {
     gap: 10px;
 }
 
-.navbar > img {
+.navbar img {
     height: 35px;
 }
 
-.navbar > h1 {
+.navbar h1 {
     display: flex;
     width: 50vw;
     align-items: center;
@@ -147,7 +147,7 @@ video {
 }
 
 @media screen and (max-width: 768px) {
-    .navbar > h1 {
+    .navbar h1 {
         display: none;
     }
 
