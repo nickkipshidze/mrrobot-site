@@ -67,6 +67,9 @@ def openitem(request, path):
     
     elif "raw" in request.GET and request.GET["raw"] == "":
         return download(path=hs.pathtob36(full_path))
+
+    elif full_path.endswith("pdf"):
+        return preview_pdf(path=hs.pathtob36(full_path))
         
     elif full_path.endswith(settings.EXTS_MEDIA):
         return HttpResponseRedirect(f"/watch/{hs.pathtob36(full_path)}")
@@ -195,6 +198,14 @@ def preview_text(path):
         return HttpResponse(
             f"<h1>Failed to read</h1>"
         )
+
+@resolvepath
+@securitycheck
+def preview_pdf(path):
+    return HttpResponse(
+        open(path, "rb").read(),
+        content_type="application/pdf"
+    )
 
 @resolvepath
 @securitycheck
